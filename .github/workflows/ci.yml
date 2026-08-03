@@ -1,0 +1,14 @@
+name: terraform-ci
+
+on:
+  pull_request:
+
+permissions: read-all
+
+concurrency:
+  group: terraform-ci-pr-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  terraform-ci:
+    uses: ./.github/workflows/terraform-ci.yml

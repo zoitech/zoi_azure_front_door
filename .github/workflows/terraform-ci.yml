@@ -1,0 +1,65 @@
+name: terraform-ci
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  terraform-ci:
+    name: Terraform checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.7
+
+      - name: Terraform format check
+        run: terraform fmt -check -recursive
+
+      - name: Terraform validate
+        run: |
+          terraform init -backend=false -input=false -lockfile=readonly
+          terraform validate
+
+      - name: Install terraform-docs
+        run: |
+          curl -sSLo terraform-docs.tar.gz https://github.com/terraform-docs/terraform-docs/releases/download/v0.24.0/terraform-docs-v0.24.0-linux-amd64.tar.gz
+          echo "9005daf969de0b50134493a2c00078b49f5f5b39d021cda7c89bf4d4f3d776d3  terraform-docs.tar.gz" | sha256sum --check --status
+          tar -xzf terraform-docs.tar.gz terraform-docs
+          sudo mv terraform-docs /usr/local/bin/terraform-docs
+          rm -f terraform-docs.tar.gz
+
+      - name: Check README docs drift
+        run: |
+          terraform-docs markdown table --header-from docs/.terraform-docs.header.md --footer-from docs/.terraform-docs.footer.md --output-file README.md --output-mode inject .
+          git diff --exit-code README.md
+
+      - name: Install gitleaks
+        run: |
+          curl -sSLo gitleaks.tar.gz https://github.com/gitleaks/gitleaks/releases/download/v8.24.2/gitleaks_8.24.2_linux_x64.tar.gz
+          echo "fa0500f6b7e41d28791ebc680f5dd9899cd42b58629218a5f041efa899151a8e  gitleaks.tar.gz" | sha256sum --check --status
+          tar -xzf gitleaks.tar.gz gitleaks
+          sudo mv gitleaks /usr/local/bin/gitleaks
+          rm -f gitleaks.tar.gz
+
+      - name: Run gitleaks
+        run: gitleaks git --redact --no-banner .
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Checkov
+        run: pip install --disable-pip-version-check checkov==3.2.382
+
+      - name: Run Checkov (high/critical only)
+        run: checkov -d . --skip-path examples --quiet --compact --soft-fail-on LOW,MEDIUM --hard-fail-on HIGH,CRITICAL

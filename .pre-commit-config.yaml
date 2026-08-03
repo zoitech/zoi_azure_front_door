@@ -1,0 +1,29 @@
+repos:
+  - repo: local
+    hooks:
+      - id: terraform-fmt
+        name: terraform fmt
+        entry: terraform fmt -recursive
+        language: system
+        pass_filenames: false
+      - id: terraform-validate
+        name: terraform validate
+        entry: bash -c 'set -euo pipefail; tf_data_dir="$(mktemp -d)"; trap '\''rm -rf "$tf_data_dir"'\'' EXIT; TF_DATA_DIR="$tf_data_dir" terraform init -backend=false -input=false -lockfile=readonly; TF_DATA_DIR="$tf_data_dir" terraform validate'
+        language: system
+        pass_filenames: false
+      - id: terraform-docs-version
+        name: terraform docs version
+        entry: bash -c 'set -euo pipefail; required="v0.24.0"; current="$(terraform-docs --version | awk '\''{print $3}'\'')"; if [ "$current" != "$required" ]; then echo "terraform-docs $required is required (found $current)"; exit 1; fi'
+        language: system
+        pass_filenames: false
+      - id: terraform-docs
+        name: terraform docs
+        entry: terraform-docs markdown table --header-from docs/.terraform-docs.header.md --footer-from docs/.terraform-docs.footer.md --output-file README.md --output-mode inject .
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: gitleaks
+        name: gitleaks
+        entry: gitleaks git --pre-commit --staged --redact --no-banner
+        language: system
+        pass_filenames: false
