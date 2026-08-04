@@ -31,7 +31,7 @@ variable "suffix" {
   type        = string
   default     = null
   validation {
-    condition     = var.suffix == null || can(regex("^[a-z0-9-]{1,10}$", var.suffix))
+    condition     = can(regex("^$|^[a-z0-9-]{1,10}$", try(trimspace(var.suffix), "")))
     error_message = "suffix must be lowercase alphanumeric and hyphens only, max 10 characters."
   }
 }
@@ -81,8 +81,8 @@ variable "route_name" {
   type        = string
   default     = "default"
   validation {
-    condition     = can(regex("^[a-zA-Z0-9-]{1,90}$", var.route_name))
-    error_message = "route_name must be 1–90 characters, alphanumeric and hyphens only."
+    condition     = can(regex("^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,88}[a-zA-Z0-9])?$", var.route_name))
+    error_message = "route_name must be 1–90 characters, alphanumeric and hyphens only, and must start/end with an alphanumeric character."
   }
 }
 

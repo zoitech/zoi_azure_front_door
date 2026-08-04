@@ -96,10 +96,9 @@ locals {
     lower(replace(var.location, " ", ""))
   )
 
-  # Two-step ternary is required: Terraform does NOT short-circuit `||` so
-  # trimspace(null) would always be evaluated. A nested conditional ensures
-  # the null branch is taken first and trimspace is never called on null.
-  _suffix_part = var.suffix == null ? "" : (trimspace(var.suffix) == "" ? "" : "-${trimspace(var.suffix)}")
+  # Terraform does not short-circuit logical operators, so avoid guarding trimspace() with `||`.
+  _suffix_trimmed = var.suffix == null ? "" : trimspace(var.suffix)
+  _suffix_part    = local._suffix_trimmed == "" ? "" : "-${local._suffix_trimmed}"
 
   profile_name      = coalesce(var.name_override, "afd-${var.workload}-${local.env_short}-${local.location_short}${local._suffix_part}")
   endpoint_name     = coalesce(var.endpoint_name_override, "ep-${var.workload}-${local.env_short}-${local.location_short}${local._suffix_part}")
