@@ -1,7 +1,10 @@
 <!-- BEGIN_TF_DOCS -->
 # Module Overview
 
-This module provisions the Azure resource managed by this repository.
+This module provisions an **Azure Front Door Standard/Premium** profile in front of
+a backend origin (e.g. Azure Container Apps). It creates a Front Door profile,
+endpoint, origin group with health probe, origin, and route — all configurable
+through input variables with safe, production-ready defaults.
 
 ## Usage
 
@@ -11,7 +14,7 @@ See [examples/basic](examples/basic) for a minimal working example.
 
 | Name | Version |
 | ---- | ------- |
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~> 1.5.7 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.0 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | >= 4.0.0, < 5.0.0 |
 
 ## Providers
@@ -43,7 +46,7 @@ No modules.
 | <a name="input_endpoint_name_override"></a> [endpoint\_name\_override](#input\_endpoint\_name\_override) | Override the auto-generated Front Door endpoint name. | `string` | `null` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | Deployment environment. Valid values: production, development, test, staging, uat, sandbox, poc. | `string` | n/a | yes |
 | <a name="input_forwarding_protocol"></a> [forwarding\_protocol](#input\_forwarding\_protocol) | Protocol used by Front Door when forwarding traffic to the origin. | `string` | `"HttpsOnly"` | no |
-| <a name="input_health_probe_interval_in_seconds"></a> [health\_probe\_interval\_in\_seconds](#input\_health\_probe\_interval\_in\_seconds) | Interval in seconds between health probes. | `number` | `120` | no |
+| <a name="input_health_probe_interval_in_seconds"></a> [health\_probe\_interval\_in\_seconds](#input\_health\_probe\_interval\_in\_seconds) | Interval in seconds between health probes. Azure accepts 5–31536000. | `number` | `120` | no |
 | <a name="input_health_probe_path"></a> [health\_probe\_path](#input\_health\_probe\_path) | Health probe path for origin checks. | `string` | `"/healthz"` | no |
 | <a name="input_health_probe_protocol"></a> [health\_probe\_protocol](#input\_health\_probe\_protocol) | Protocol used for origin health probing. | `string` | `"Https"` | no |
 | <a name="input_health_probe_request_type"></a> [health\_probe\_request\_type](#input\_health\_probe\_request\_type) | HTTP method used for origin health probing. | `string` | `"GET"` | no |
@@ -60,15 +63,15 @@ No modules.
 | <a name="input_origin_http_port"></a> [origin\_http\_port](#input\_origin\_http\_port) | Origin HTTP port. | `number` | `80` | no |
 | <a name="input_origin_https_port"></a> [origin\_https\_port](#input\_origin\_https\_port) | Origin HTTPS port. | `number` | `443` | no |
 | <a name="input_origin_name_override"></a> [origin\_name\_override](#input\_origin\_name\_override) | Override the auto-generated Front Door origin name. | `string` | `null` | no |
-| <a name="input_origin_priority"></a> [origin\_priority](#input\_origin\_priority) | Priority of the origin in the origin group. | `number` | `1` | no |
-| <a name="input_origin_weight"></a> [origin\_weight](#input\_origin\_weight) | Weight of the origin in the origin group. | `number` | `1000` | no |
+| <a name="input_origin_priority"></a> [origin\_priority](#input\_origin\_priority) | Priority of the origin in the origin group. Azure accepts 1–5. | `number` | `1` | no |
+| <a name="input_origin_weight"></a> [origin\_weight](#input\_origin\_weight) | Weight of the origin in the origin group. Azure accepts 1–1000. | `number` | `1000` | no |
 | <a name="input_patterns_to_match"></a> [patterns\_to\_match](#input\_patterns\_to\_match) | URL path patterns matched by the route. | `list(string)` | <pre>[<br/>  "/*"<br/>]</pre> | no |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | Resource group where the Front Door profile will be deployed. | `string` | n/a | yes |
-| <a name="input_restore_traffic_time_minutes"></a> [restore\_traffic\_time\_minutes](#input\_restore\_traffic\_time\_minutes) | Minutes Front Door waits before fully restoring traffic to a healed origin. | `number` | `10` | no |
-| <a name="input_route_name"></a> [route\_name](#input\_route\_name) | Name of the Front Door route. | `string` | `"default"` | no |
+| <a name="input_restore_traffic_time_minutes"></a> [restore\_traffic\_time\_minutes](#input\_restore\_traffic\_time\_minutes) | Minutes Front Door waits before fully restoring traffic to a healed origin. Azure accepts 0–50. | `number` | `10` | no |
+| <a name="input_route_name"></a> [route\_name](#input\_route\_name) | Name of the Front Door route. Must be 1–90 characters, alphanumeric and hyphens only. | `string` | `"default"` | no |
 | <a name="input_session_affinity_enabled"></a> [session\_affinity\_enabled](#input\_session\_affinity\_enabled) | Enable session affinity on the origin group. | `bool` | `false` | no |
 | <a name="input_sku_name"></a> [sku\_name](#input\_sku\_name) | Front Door profile SKU. | `string` | `"Standard_AzureFrontDoor"` | no |
-| <a name="input_suffix"></a> [suffix](#input\_suffix) | Optional suffix appended to generated Front Door resource names. | `string` | `null` | no |
+| <a name="input_suffix"></a> [suffix](#input\_suffix) | Optional suffix appended to generated Front Door resource names. Must be lowercase alphanumeric and hyphens only, max 10 characters. | `string` | `null` | no |
 | <a name="input_supported_protocols"></a> [supported\_protocols](#input\_supported\_protocols) | Protocols accepted by the endpoint route. | `list(string)` | <pre>[<br/>  "Https"<br/>]</pre> | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Additional tags to apply. Merged with module-managed tags (managed\_by, environment, workload). | `map(string)` | `{}` | no |
 | <a name="input_workload"></a> [workload](#input\_workload) | Name of the workload or application. Used in resource naming and tagging. | `string` | n/a | yes |
