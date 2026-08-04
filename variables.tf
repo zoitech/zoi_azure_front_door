@@ -27,9 +27,13 @@ variable "resource_group_name" {
 }
 
 variable "suffix" {
-  description = "Optional suffix appended to generated Front Door resource names."
+  description = "Optional suffix appended to generated Front Door resource names. Must be lowercase alphanumeric and hyphens only, max 10 characters."
   type        = string
   default     = null
+  validation {
+    condition     = can(regex("^$|^[a-z0-9-]{1,10}$", try(trimspace(var.suffix), "")))
+    error_message = "suffix must be lowercase alphanumeric and hyphens only, max 10 characters."
+  }
 }
 
 variable "name_override" {
@@ -73,9 +77,13 @@ variable "enabled" {
 }
 
 variable "route_name" {
-  description = "Name of the Front Door route."
+  description = "Name of the Front Door route. Must be 1–90 characters, alphanumeric and hyphens only."
   type        = string
   default     = "default"
+  validation {
+    condition     = can(regex("^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,88}[a-zA-Z0-9])?$", var.route_name))
+    error_message = "route_name must be 1–90 characters, alphanumeric and hyphens only, and must start/end with an alphanumeric character."
+  }
 }
 
 variable "patterns_to_match" {
@@ -121,6 +129,10 @@ variable "link_to_default_domain" {
 variable "origin_fqdn" {
   description = "FQDN of the backend origin, for example a Container App ingress hostname."
   type        = string
+  validation {
+    condition     = can(regex("^[a-zA-Z0-9][a-zA-Z0-9.-]+[a-zA-Z0-9]$", var.origin_fqdn))
+    error_message = "origin_fqdn must be a valid hostname (e.g. myapp.azurecontainerapps.io)."
+  }
 }
 
 variable "origin_host_header" {
@@ -142,15 +154,23 @@ variable "origin_https_port" {
 }
 
 variable "origin_priority" {
-  description = "Priority of the origin in the origin group."
+  description = "Priority of the origin in the origin group. Azure accepts 1–5."
   type        = number
   default     = 1
+  validation {
+    condition     = var.origin_priority >= 1 && var.origin_priority <= 5
+    error_message = "origin_priority must be between 1 and 5."
+  }
 }
 
 variable "origin_weight" {
-  description = "Weight of the origin in the origin group."
+  description = "Weight of the origin in the origin group. Azure accepts 1–1000."
   type        = number
   default     = 1000
+  validation {
+    condition     = var.origin_weight >= 1 && var.origin_weight <= 1000
+    error_message = "origin_weight must be between 1 and 1000."
+  }
 }
 
 variable "certificate_name_check_enabled" {
@@ -166,9 +186,13 @@ variable "session_affinity_enabled" {
 }
 
 variable "restore_traffic_time_minutes" {
-  description = "Minutes Front Door waits before fully restoring traffic to a healed origin."
+  description = "Minutes Front Door waits before fully restoring traffic to a healed origin. Azure accepts 0–50."
   type        = number
   default     = 10
+  validation {
+    condition     = var.restore_traffic_time_minutes >= 0 && var.restore_traffic_time_minutes <= 50
+    error_message = "restore_traffic_time_minutes must be between 0 and 50."
+  }
 }
 
 variable "load_balancing_additional_latency_in_milliseconds" {
@@ -216,9 +240,13 @@ variable "health_probe_request_type" {
 }
 
 variable "health_probe_interval_in_seconds" {
-  description = "Interval in seconds between health probes."
+  description = "Interval in seconds between health probes. Azure accepts 5–31536000."
   type        = number
   default     = 120
+  validation {
+    condition     = var.health_probe_interval_in_seconds >= 5 && var.health_probe_interval_in_seconds <= 31536000
+    error_message = "health_probe_interval_in_seconds must be between 5 and 31536000."
+  }
 }
 
 variable "tags" {
