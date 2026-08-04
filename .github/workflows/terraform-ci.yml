@@ -19,7 +19,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.9.8
+          terraform_version: 1.5.7
 
       - name: Terraform format check
         run: terraform fmt -check -recursive
@@ -56,7 +56,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: '3.11'
 
       - name: Install Checkov
         run: pip install --disable-pip-version-check checkov==3.2.382
