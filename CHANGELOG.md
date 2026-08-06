@@ -2,6 +2,13 @@
 
 All notable changes to this module will be documented in this file.
 
+## [0.2.0](https://github.com/zoi-enavarro/zoi_azure_front_door/compare/v0.1.0...v0.2.0) (2026-08-06)
+
+
+### Features
+
+* add support for optional custom domain configuration ([#4](https://github.com/zoi-enavarro/zoi_azure_front_door/issues/4)) ([ea5a190](https://github.com/zoi-enavarro/zoi_azure_front_door/commit/ea5a190c4dae3975675a8e2c92e02224fc5434fb))
+
 ## 0.1.0 (2026-08-04)
 
 
