@@ -65,7 +65,7 @@ resource "azurerm_cdn_frontdoor_route" "this" {
 # Provision Custom Domain & Azure-Managed SSL Certificate
 resource "azurerm_cdn_frontdoor_custom_domain" "this" {
   count                    = var.custom_domain_host_name != null ? 1 : 0
-  name                     = "custom-domain"
+  name                     = "cd-${replace(var.custom_domain_host_name, ".", "-")}"
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
   host_name                = var.custom_domain_host_name
   dns_zone_id              = var.custom_domain_dns_zone_id
