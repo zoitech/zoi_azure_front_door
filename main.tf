@@ -59,8 +59,7 @@ resource "azurerm_cdn_frontdoor_route" "this" {
   patterns_to_match      = var.patterns_to_match
   supported_protocols    = var.supported_protocols
 
-  # Bind custom domain ID to the route when supplied
-  cdn_frontdoor_custom_domain_ids = var.custom_domain_host_name != null ? [azurerm_cdn_frontdoor_custom_domain.this[0].id] : []
+  # Custom domains are associated via azurerm_cdn_frontdoor_custom_domain_association.this when enabled
 }
 
 # Provision Custom Domain & Azure-Managed SSL Certificate
