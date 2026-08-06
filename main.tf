@@ -64,11 +64,11 @@ resource "azurerm_cdn_frontdoor_route" "this" {
 
 # Provision Custom Domain & Azure-Managed SSL Certificate
 resource "azurerm_cdn_frontdoor_custom_domain" "this" {
-  count                    = var.custom_domain_host_name != null ? 1 : 0
-  name                     = "cd-${replace(var.custom_domain_host_name, ".", "-")}"
+  count                    = var.custom_domain != null ? 1 : 0
+  name                     = "cd-${replace(var.custom_domain.host_name, ".", "-")}"
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
-  host_name                = var.custom_domain_host_name
-  dns_zone_id              = var.custom_domain_dns_zone_id
+  host_name                = var.custom_domain.host_name
+  dns_zone_id              = var.custom_domain.dns_zone_id
 
   tls {
     certificate_type = "ManagedCertificate" # Azure provisions & auto-renews free SSL
@@ -78,7 +78,7 @@ resource "azurerm_cdn_frontdoor_custom_domain" "this" {
 
 # Explicit Association Resource (Prevents Lifecycle Drift)
 resource "azurerm_cdn_frontdoor_custom_domain_association" "this" {
-  count                          = var.custom_domain_host_name != null ? 1 : 0
+  count                          = var.custom_domain != null ? 1 : 0
   cdn_frontdoor_custom_domain_id = azurerm_cdn_frontdoor_custom_domain.this[0].id
   cdn_frontdoor_route_ids        = [azurerm_cdn_frontdoor_route.this.id]
 }
