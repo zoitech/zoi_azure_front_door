@@ -31,6 +31,8 @@ No modules.
 
 | Name | Type |
 | ---- | ---- |
+| [azurerm_cdn_frontdoor_custom_domain.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_custom_domain) | resource |
+| [azurerm_cdn_frontdoor_custom_domain_association.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_custom_domain_association) | resource |
 | [azurerm_cdn_frontdoor_endpoint.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_endpoint) | resource |
 | [azurerm_cdn_frontdoor_origin.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_origin) | resource |
 | [azurerm_cdn_frontdoor_origin_group.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_origin_group) | resource |
@@ -42,6 +44,8 @@ No modules.
 | Name | Description | Type | Default | Required |
 | ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_certificate_name_check_enabled"></a> [certificate\_name\_check\_enabled](#input\_certificate\_name\_check\_enabled) | Enable TLS certificate name checks between Front Door and origin. | `bool` | `true` | no |
+| <a name="input_custom_domain_dns_zone_id"></a> [custom\_domain\_dns\_zone\_id](#input\_custom\_domain\_dns\_zone\_id) | Optional Azure DNS Zone ID if using Azure DNS for automatic domain validation. | `string` | `null` | no |
+| <a name="input_custom_domain_host_name"></a> [custom\_domain\_host\_name](#input\_custom\_domain\_host\_name) | Optional custom domain hostname. | `string` | `null` | no |
 | <a name="input_enabled"></a> [enabled](#input\_enabled) | When false, endpoint, origin and route are created in disabled state. | `bool` | `true` | no |
 | <a name="input_endpoint_name_override"></a> [endpoint\_name\_override](#input\_endpoint\_name\_override) | Override the auto-generated Front Door endpoint name. | `string` | `null` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | Deployment environment. Valid values: production, development, test, staging, uat, sandbox, poc. | `string` | n/a | yes |

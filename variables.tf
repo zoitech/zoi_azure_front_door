@@ -254,3 +254,16 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+
+variable "custom_domain_host_name" {
+  description = "Optional custom domain hostname."
+  type        = string
+  default     = null
+}
+
+variable "custom_domain_dns_zone_id" {
+  description = "Optional Azure DNS Zone ID if using Azure DNS for automatic domain validation."
+  type        = string
+  default     = null
+}

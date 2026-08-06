@@ -58,4 +58,28 @@ resource "azurerm_cdn_frontdoor_route" "this" {
   link_to_default_domain = var.link_to_default_domain
   patterns_to_match      = var.patterns_to_match
   supported_protocols    = var.supported_protocols
+
+  # Bind custom domain ID to the route when supplied
+  cdn_frontdoor_custom_domain_ids = var.custom_domain_host_name != null ? [azurerm_cdn_frontdoor_custom_domain.this[0].id] : []
+}
+
+# Provision Custom Domain & Azure-Managed SSL Certificate
+resource "azurerm_cdn_frontdoor_custom_domain" "this" {
+  count                    = var.custom_domain_host_name != null ? 1 : 0
+  name                     = "custom-domain"
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
+  host_name                = var.custom_domain_host_name
+  dns_zone_id              = var.custom_domain_dns_zone_id
+
+  tls {
+    certificate_type = "ManagedCertificate" # Azure provisions & auto-renews free SSL
+    #minimum_tls_version = "TLS12"
+  }
+}
+
+# Explicit Association Resource (Prevents Lifecycle Drift)
+resource "azurerm_cdn_frontdoor_custom_domain_association" "this" {
+  count                          = var.custom_domain_host_name != null ? 1 : 0
+  cdn_frontdoor_custom_domain_id = azurerm_cdn_frontdoor_custom_domain.this[0].id
+  cdn_frontdoor_route_ids        = [azurerm_cdn_frontdoor_route.this.id]
 }
