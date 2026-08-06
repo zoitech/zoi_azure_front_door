@@ -254,3 +254,17 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "custom_domain" {
+  description = "Optional custom domain configuration."
+  type = object({
+    host_name   = string
+    dns_zone_id = optional(string, null)
+  })
+  default = null
+
+  validation {
+    condition     = var.custom_domain == null ? true : length(trimspace(var.custom_domain.host_name)) > 0
+    error_message = "custom_domain.host_name must be a non-empty string."
+  }
+}
