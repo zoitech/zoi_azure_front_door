@@ -260,10 +260,18 @@ variable "custom_domain_host_name" {
   description = "Optional custom domain hostname."
   type        = string
   default     = null
+  validation {
+    condition     = var.custom_domain_host_name == null ? true : length(trimspace(var.custom_domain_host_name)) > 0
+    error_message = "custom_domain_host_name must be null or a non-empty hostname."
+  }
 }
 
 variable "custom_domain_dns_zone_id" {
   description = "Optional Azure DNS Zone ID if using Azure DNS for automatic domain validation."
   type        = string
   default     = null
+  validation {
+    condition     = var.custom_domain_dns_zone_id == null ? true : var.custom_domain_host_name != null
+    error_message = "custom_domain_dns_zone_id can only be set when custom_domain_host_name is provided."
+  }
 }
