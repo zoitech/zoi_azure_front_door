@@ -1,8 +1,9 @@
 resource "azurerm_cdn_frontdoor_profile" "this" {
-  name                = local.profile_name
-  resource_group_name = var.resource_group_name
-  sku_name            = var.sku_name
-  tags                = local.tags
+  name                     = local.profile_name
+  resource_group_name      = var.resource_group_name
+  response_timeout_seconds = var.response_timeout_seconds
+  sku_name                 = var.sku_name
+  tags                     = local.tags
 }
 
 resource "azurerm_cdn_frontdoor_endpoint" "this" {
@@ -59,26 +60,86 @@ resource "azurerm_cdn_frontdoor_route" "this" {
   patterns_to_match      = var.patterns_to_match
   supported_protocols    = var.supported_protocols
 
-  # Custom domains are associated via azurerm_cdn_frontdoor_custom_domain_association.this when enabled
+  cdn_frontdoor_custom_domain_ids = local.custom_domain != null ? [azurerm_cdn_frontdoor_custom_domain.this[0].id] : []
 }
 
 # Provision Custom Domain & Azure-Managed SSL Certificate
 resource "azurerm_cdn_frontdoor_custom_domain" "this" {
-  count                    = var.custom_domain != null ? 1 : 0
-  name                     = "cd-${replace(var.custom_domain.host_name, ".", "-")}"
+  count                    = local.custom_domain != null ? 1 : 0
+  name                     = local.custom_domain_resource_name
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
-  host_name                = var.custom_domain.host_name
-  dns_zone_id              = var.custom_domain.dns_zone_id
+  host_name                = local.custom_domain.host_name
+  dns_zone_id              = local.custom_domain.dns_zone_id
 
   tls {
-    certificate_type = "ManagedCertificate" # Azure provisions & auto-renews free SSL
-    #minimum_tls_version = "TLS12"
+    certificate_type = "ManagedCertificate"
   }
 }
 
 # Explicit Association Resource (Prevents Lifecycle Drift)
 resource "azurerm_cdn_frontdoor_custom_domain_association" "this" {
-  count                          = var.custom_domain != null ? 1 : 0
+  count                          = local.custom_domain != null ? 1 : 0
   cdn_frontdoor_custom_domain_id = azurerm_cdn_frontdoor_custom_domain.this[0].id
   cdn_frontdoor_route_ids        = [azurerm_cdn_frontdoor_route.this.id]
+}
+
+# Optional: Disable caching for specified paths (useful for SSE, streaming endpoints)
+resource "azurerm_cdn_frontdoor_rule_set" "disable_cache" {
+  count                    = length(var.disable_cache_for_paths) > 0 ? 1 : 0
+  name                     = local.rule_set_name
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.this.id
+}
+
+resource "azurerm_cdn_frontdoor_rule" "disable_cache_control" {
+  count                     = length(var.disable_cache_for_paths) > 0 ? 1 : 0
+  name                      = "disablecachecontrol"
+  cdn_frontdoor_rule_set_id = azurerm_cdn_frontdoor_rule_set.disable_cache[0].id
+  order                     = 1
+  behavior_on_match         = "Continue"
+
+  dynamic "conditions" {
+    for_each = var.disable_cache_for_paths
+    content {
+      url_path_condition {
+        operator         = "BeginsWith"
+        negate_condition = false
+        match_values     = [conditions.value]
+      }
+    }
+  }
+
+  actions {
+    response_header_action {
+      header_action = "Overwrite"
+      header_name   = "Cache-Control"
+      value         = "no-cache, no-store, no-transform, must-revalidate, private, max-age=0"
+    }
+  }
+}
+
+resource "azurerm_cdn_frontdoor_rule" "disable_proxy_buffering" {
+  count                     = length(var.disable_cache_for_paths) > 0 ? 1 : 0
+  name                      = "disableproxybuffering"
+  cdn_frontdoor_rule_set_id = azurerm_cdn_frontdoor_rule_set.disable_cache[0].id
+  order                     = 2
+  behavior_on_match         = "Continue"
+
+  dynamic "conditions" {
+    for_each = var.disable_cache_for_paths
+    content {
+      url_path_condition {
+        operator         = "BeginsWith"
+        negate_condition = false
+        match_values     = [conditions.value]
+      }
+    }
+  }
+
+  actions {
+    response_header_action {
+      header_action = "Append"
+      header_name   = "X-Accel-Buffering"
+      value         = "no"
+    }
+  }
 }
