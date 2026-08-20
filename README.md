@@ -38,13 +38,19 @@ No modules.
 | [azurerm_cdn_frontdoor_origin_group.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_origin_group) | resource |
 | [azurerm_cdn_frontdoor_profile.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_profile) | resource |
 | [azurerm_cdn_frontdoor_route.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_route) | resource |
+| [azurerm_cdn_frontdoor_rule.disable_cache_control](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_rule) | resource |
+| [azurerm_cdn_frontdoor_rule.disable_proxy_buffering](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_rule) | resource |
+| [azurerm_cdn_frontdoor_rule_set.disable_cache](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_rule_set) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 | ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_certificate_name_check_enabled"></a> [certificate\_name\_check\_enabled](#input\_certificate\_name\_check\_enabled) | Enable TLS certificate name checks between Front Door and origin. | `bool` | `true` | no |
-| <a name="input_custom_domain"></a> [custom\_domain](#input\_custom\_domain) | Optional custom domain configuration. | <pre>object({<br/>    host_name   = string<br/>    dns_zone_id = optional(string, null)<br/>  })</pre> | `null` | no |
+| <a name="input_custom_domain"></a> [custom\_domain](#input\_custom\_domain) | Optional custom domain configuration. | <pre>object({<br/>    host_name   = string<br/>    dns_zone_id = optional(string, null)<br/>    name        = optional(string, null)<br/>  })</pre> | `null` | no |
+| <a name="input_custom_domain_dns_zone_id"></a> [custom\_domain\_dns\_zone\_id](#input\_custom\_domain\_dns\_zone\_id) | DEPRECATED: Use var.custom\_domain instead. | `string` | `null` | no |
+| <a name="input_custom_domain_host_name"></a> [custom\_domain\_host\_name](#input\_custom\_domain\_host\_name) | DEPRECATED: Use var.custom\_domain instead. | `string` | `null` | no |
+| <a name="input_disable_cache_for_paths"></a> [disable\_cache\_for\_paths](#input\_disable\_cache\_for\_paths) | Optional list of URL path prefixes to disable caching for (e.g. ['/api/', '/mcp/']). Useful for SSE streams and real-time endpoints. | `list(string)` | `[]` | no |
 | <a name="input_enabled"></a> [enabled](#input\_enabled) | When false, endpoint, origin and route are created in disabled state. | `bool` | `true` | no |
 | <a name="input_endpoint_name_override"></a> [endpoint\_name\_override](#input\_endpoint\_name\_override) | Override the auto-generated Front Door endpoint name. | `string` | `null` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | Deployment environment. Valid values: production, development, test, staging, uat, sandbox, poc. | `string` | n/a | yes |
@@ -70,6 +76,7 @@ No modules.
 | <a name="input_origin_weight"></a> [origin\_weight](#input\_origin\_weight) | Weight of the origin in the origin group. Azure accepts 1–1000. | `number` | `1000` | no |
 | <a name="input_patterns_to_match"></a> [patterns\_to\_match](#input\_patterns\_to\_match) | URL path patterns matched by the route. | `list(string)` | <pre>[<br/>  "/*"<br/>]</pre> | no |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | Resource group where the Front Door profile will be deployed. | `string` | n/a | yes |
+| <a name="input_response_timeout_seconds"></a> [response\_timeout\_seconds](#input\_response\_timeout\_seconds) | The response timeout in seconds | `number` | `120` | no |
 | <a name="input_restore_traffic_time_minutes"></a> [restore\_traffic\_time\_minutes](#input\_restore\_traffic\_time\_minutes) | Minutes Front Door waits before fully restoring traffic to a healed origin. Azure accepts 0–50. | `number` | `10` | no |
 | <a name="input_route_name"></a> [route\_name](#input\_route\_name) | Name of the Front Door route. Must be 1–90 characters, alphanumeric and hyphens only. | `string` | `"default"` | no |
 | <a name="input_session_affinity_enabled"></a> [session\_affinity\_enabled](#input\_session\_affinity\_enabled) | Enable session affinity on the origin group. | `bool` | `false` | no |

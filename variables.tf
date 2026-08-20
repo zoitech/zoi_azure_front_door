@@ -260,6 +260,7 @@ variable "custom_domain" {
   type = object({
     host_name   = string
     dns_zone_id = optional(string, null)
+    name        = optional(string, null)
   })
   default = null
 
@@ -267,4 +268,29 @@ variable "custom_domain" {
     condition     = var.custom_domain == null ? true : length(trimspace(var.custom_domain.host_name)) > 0
     error_message = "custom_domain.host_name must be a non-empty string."
   }
+}
+
+# Legacy Variables kept for backward compatibility
+variable "custom_domain_host_name" {
+  description = "DEPRECATED: Use var.custom_domain instead."
+  type        = string
+  default     = null
+}
+
+variable "custom_domain_dns_zone_id" {
+  description = "DEPRECATED: Use var.custom_domain instead."
+  type        = string
+  default     = null
+}
+
+variable "disable_cache_for_paths" {
+  description = "Optional list of URL path prefixes to disable caching for (e.g. ['/api/', '/mcp/']). Useful for SSE streams and real-time endpoints."
+  type        = list(string)
+  default     = []
+}
+
+variable "response_timeout_seconds" {
+  description = "The response timeout in seconds"
+  type        = number
+  default     = 120
 }

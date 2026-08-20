@@ -111,5 +111,20 @@ locals {
     workload    = var.workload
   }
 
+  custom_domain = var.custom_domain != null ? var.custom_domain : (
+    var.custom_domain_host_name != null ? {
+      host_name   = var.custom_domain_host_name
+      dns_zone_id = var.custom_domain_dns_zone_id
+      name        = "custom-domain" # Preserves resource name for legacy callers
+    } : null
+  )
+
+  # Resolve the Azure resource name
+  custom_domain_resource_name = local.custom_domain != null ? (
+    local.custom_domain.name != null ? local.custom_domain.name : "cd-${replace(local.custom_domain.host_name, ".", "-")}"
+  ) : null
+
+  rule_set_name = "rs${local.env_short}${local.location_short}${local._suffix_part}"
+
   tags = merge(local._default_tags, var.tags)
 }
