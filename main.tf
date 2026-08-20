@@ -61,6 +61,10 @@ resource "azurerm_cdn_frontdoor_route" "this" {
   supported_protocols    = var.supported_protocols
 
   cdn_frontdoor_custom_domain_ids = local.custom_domain != null ? [azurerm_cdn_frontdoor_custom_domain.this[0].id] : []
+
+  cdn_frontdoor_rule_set_ids = length(var.disable_cache_for_paths) > 0 ? [
+    azurerm_cdn_frontdoor_rule_set.disable_cache[0].id
+  ] : []
 }
 
 # Provision Custom Domain & Azure-Managed SSL Certificate
